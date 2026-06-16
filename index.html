@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Process Buddy – EMEA PPS Knowledge Base</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --brand: #1a56db;
+    --brand-light: #e8f0fe;
+    --brand-dark: #1341a8;
+    --bg: #f5f7fa;
+    --surface: #ffffff;
+    --surface2: #f0f4f8;
+    --border: #e2e8f0;
+    --text: #1a202c;
+    --text-2: #4a5568;
+    --text-3: #718096;
+    --success: #276749;
+    --success-bg: #e6fffa;
+    --warn: #7b3f00;
+    --warn-bg: #fffbeb;
+    --danger: #9b2c2c;
+    --danger-bg: #fff5f5;
+    --tag-bg: #edf2f7;
+    --radius: 10px;
+    --shadow: 0 1px 4px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04);
+    --shadow-lg: 0 4px 20px rgba(0,0,0,0.1);
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 15px;
+    line-height: 1.6;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* TOP BAR */
+  .topbar {
+    background: var(--brand);
+    color: #fff;
+    padding: 0 24px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+  .topbar .logo {
+    width: 30px; height: 30px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 14px; letter-spacing: -0.5px;
+  }
+  .topbar h1 { font-size: 16px; font-weight: 600; letter-spacing: -0.3px; flex: 1; }
+  .topbar .badge {
+    background: rgba(255,255,255,0.18);
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 20px;
+    padding: 2px 10px;
+    font-size: 11px;
+    font-weight: 500;
+  }
+
+  /* LAYOUT */
+  .layout { display: flex; flex: 1; height: calc(100vh - 56px); overflow: hidden; }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 260px;
+    min-width: 220px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .sidebar-header {
+    padding: 14px 16px 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .sidebar-header p { font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-3); font-weight: 600; margin-bottom: 8px; }
+  .search-box {
+    position: relative;
+  }
+  .search-box input {
+    width: 100%;
+    padding: 7px 10px 7px 32px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 13px;
+    background: var(--surface2);
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .search-box input:focus { border-color: var(--brand); background: #fff; }
+  .search-box svg { position: absolute; left: 9px; top: 50%; transform: translateY(-50%); color: var(--text-3); pointer-events: none; }
+
+  .nav-list { flex: 1; overflow-y: auto; padding: 8px 0; }
+  .nav-item {
+    display: flex; align-items: center; gap: 9px;
+    padding: 9px 16px;
+    cursor: pointer;
+    border-radius: 0;
+    font-size: 13px;
+    color: var(--text-2);
+    transition: background 0.1s;
+    border-left: 3px solid transparent;
+    line-height: 1.3;
+  }
+  .nav-item:hover { background: var(--surface2); color: var(--text); }
+  .nav-item.active { background: var(--brand-light); color: var(--brand-dark); border-left-color: var(--brand); font-weight: 500; }
+  .nav-item .icon { width: 18px; flex-shrink: 0; color: inherit; }
+  .nav-item.hidden { display: none; }
+
+  /* MAIN */
+  .main { flex: 1; overflow-y: auto; background: var(--bg); padding: 28px 32px; }
+
+  /* CHAT */
+  .chat-panel {
+    width: 340px;
+    min-width: 300px;
+    background: var(--surface);
+    border-left: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .chat-header {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .chat-header h3 { font-size: 13px; font-weight: 600; flex: 1; }
+  .chat-dot { width: 8px; height: 8px; border-radius: 50%; background: #38a169; }
+
+  .chat-messages { flex: 1; overflow-y: auto; padding: 14px 14px 8px; display: flex; flex-direction: column; gap: 10px; }
+
+  .msg { max-width: 88%; padding: 9px 12px; border-radius: 12px; font-size: 13px; line-height: 1.5; }
+  .msg.bot { background: var(--surface2); color: var(--text); align-self: flex-start; border-bottom-left-radius: 3px; }
+  .msg.user { background: var(--brand); color: #fff; align-self: flex-end; border-bottom-right-radius: 3px; }
+  .msg.bot .source { margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--border); font-size: 11px; color: var(--text-3); }
+
+  .quick-chips { padding: 6px 14px 8px; display: flex; flex-wrap: wrap; gap: 5px; border-top: 1px solid var(--border); }
+  .chip {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 20px; padding: 4px 10px; font-size: 11px; cursor: pointer;
+    color: var(--text-2); transition: background 0.15s, color 0.15s;
+    white-space: nowrap;
+  }
+  .chip:hover { background: var(--brand-light); color: var(--brand-dark); border-color: var(--brand); }
+
+  .chat-input-wrap {
+    padding: 10px 14px 14px;
+    border-top: 1px solid var(--border);
+    display: flex; gap: 8px; align-items: flex-end;
+  }
+  .chat-input-wrap textarea {
+    flex: 1; border: 1px solid var(--border); border-radius: 8px;
+    padding: 8px 10px; font-size: 13px; resize: none;
+    font-family: inherit; color: var(--text); background: var(--surface2);
+    outline: none; max-height: 80px; line-height: 1.4;
+    transition: border-color 0.15s;
+  }
+  .chat-input-wrap textarea:focus { border-color: var(--brand); background: #fff; }
+  .send-btn {
+    width: 34px; height: 34px; border-radius: 8px;
+    background: var(--brand); border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; transition: background 0.15s; flex-shrink: 0;
+  }
+  .send-btn:hover { background: var(--brand-dark); }
+
+  /* CONTENT CARDS */
+  .page-title { font-size: 20px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .page-sub { font-size: 13px; color: var(--text-3); margin-bottom: 20px; }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 16px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+  .card-header {
+    padding: 14px 18px 12px;
+    display: flex; align-items: flex-start; gap: 10px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .card-header:hover { background: var(--surface2); }
+  .card-icon {
+    width: 34px; height: 34px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px; flex-shrink: 0; margin-top: 1px;
+  }
+  .card-header h2 { font-size: 14px; font-weight: 600; flex: 1; line-height: 1.35; }
+  .card-header p { font-size: 12px; color: var(--text-3); margin-top: 2px; }
+  .chevron { margin-left: auto; color: var(--text-3); transition: transform 0.2s; flex-shrink: 0; margin-top: 2px; }
+  .card.open .chevron { transform: rotate(180deg); }
+  .card-body { display: none; padding: 0 18px 18px; }
+  .card.open .card-body { display: block; }
+
+  .tag {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: var(--tag-bg); border-radius: 20px;
+    padding: 2px 9px; font-size: 11px; font-weight: 500;
+    color: var(--text-2); margin-bottom: 10px;
+  }
+
+  .step-list { list-style: none; margin: 10px 0; }
+  .step-list li {
+    display: flex; gap: 10px; align-items: flex-start;
+    padding: 7px 0; border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+  .step-list li:last-child { border-bottom: none; }
+  .step-num {
+    width: 22px; height: 22px; border-radius: 50%;
+    background: var(--brand-light); color: var(--brand-dark);
+    font-size: 11px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 1px;
+  }
+
+  .alert {
+    border-radius: 8px; padding: 10px 14px; font-size: 13px;
+    margin: 10px 0; line-height: 1.5;
+    display: flex; gap: 8px; align-items: flex-start;
+  }
+  .alert.warn { background: var(--warn-bg); color: var(--warn); border: 1px solid #f6ad55; }
+  .alert.danger { background: var(--danger-bg); color: var(--danger); border: 1px solid #fc8181; }
+  .alert.info { background: var(--brand-light); color: var(--brand-dark); border: 1px solid #93c5fd; }
+  .alert.success { background: var(--success-bg); color: var(--success); border: 1px solid #9ae6b4; }
+  .alert .icon { flex-shrink: 0; margin-top: 1px; }
+
+  .source-ref {
+    margin-top: 14px;
+    padding: 8px 12px;
+    background: var(--surface2);
+    border-radius: 8px;
+    font-size: 11px;
+    color: var(--text-3);
+    border-left: 3px solid var(--brand);
+  }
+  .source-ref strong { color: var(--text-2); }
+
+  .kv-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 8px 0; }
+  .kv-table td { padding: 6px 8px; vertical-align: top; }
+  .kv-table td:first-child { color: var(--text-3); width: 42%; font-weight: 500; }
+  .kv-table tr { border-bottom: 1px solid var(--border); }
+  .kv-table tr:last-child { border-bottom: none; }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 8px 0; }
+  .mini-card { background: var(--surface2); border-radius: 8px; padding: 10px 12px; font-size: 12px; }
+  .mini-card strong { display: block; font-size: 13px; font-weight: 600; margin-bottom: 4px; color: var(--text); }
+
+  .queue-list { list-style: none; }
+  .queue-list li { padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 13px; display: flex; gap: 8px; }
+  .queue-list li:last-child { border-bottom: none; }
+  .queue-badge { background: var(--brand-light); color: var(--brand-dark); border-radius: 5px; padding: 2px 7px; font-size: 10px; font-weight: 600; flex-shrink: 0; }
+
+  .home-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; margin-top: 4px; }
+  .home-tile {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px 14px;
+    cursor: pointer; transition: box-shadow 0.15s, border-color 0.15s;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .home-tile:hover { box-shadow: var(--shadow-lg); border-color: var(--brand); }
+  .home-tile .t-icon { font-size: 22px; }
+  .home-tile .t-label { font-size: 13px; font-weight: 600; line-height: 1.3; }
+  .home-tile .t-desc { font-size: 11px; color: var(--text-3); line-height: 1.4; }
+
+  /* typing indicator */
+  .typing { display: flex; align-items: center; gap: 4px; padding: 6px 10px; }
+  .typing span { width: 6px; height: 6px; background: var(--text-3); border-radius: 50%; animation: blink 1.2s infinite; }
+  .typing span:nth-child(2) { animation-delay: 0.2s; }
+  .typing span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes blink { 0%,80%,100%{opacity:0.2} 40%{opacity:1} }
+
+  @media (max-width: 900px) {
+    .sidebar { width: 200px; }
+    .chat-panel { width: 280px; }
+    .main { padding: 20px 16px; }
+  }
+  @media (max-width: 680px) {
+    .chat-panel { display: none; }
+    .sidebar { width: 52px; }
+    .nav-item span { display: none; }
+    .sidebar-header { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="logo">PB</div>
+  <h1>Process Buddy</h1>
+  <span class="badge">EMEA PPS</span>
+</header>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="sidebar-header">
+      <p>Knowledge Base</p>
+      <div class="search-box">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" id="sidebarSearch" placeholder="Filter topics…" oninput="filterNav(this.value)" />
+      </div>
+    </div>
+    <div class="nav-list" id="navList">
+      <div class="nav-item active" onclick="showPage('home')" data-label="Overview Home">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span>Home</span>
+      </div>
+      <div class="nav-item" onclick="showPage('keypop')" data-label="Key Pop-out Issue">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        <span>Key Pop-out Issue</span>
+      </div>
+      <div class="nav-item" onclick="showPage('priority')" data-label="Priority Support GS1">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        <span>Priority Support / GS1</span>
+      </div>
+      <div class="nav-item" onclick="showPage('elevations')" data-label="EMEA Elevations">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 11 12 6 7 11"/><polyline points="17 18 12 13 7 18"/></svg>
+        <span>Elevations Process</span>
+      </div>
+      <div class="nav-item" onclick="showPage('mo')" data-label="MO Line Item Cancellations CDAX">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        <span>MO / Line Cancellations</span>
+      </div>
+      <div class="nav-item" onclick="showPage('escalation')" data-label="Global Escalation Process">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span>Global Escalation</span>
+      </div>
+      <div class="nav-item" onclick="showPage('blankowo')" data-label="Blank WO Creation">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5z"/><path d="M20.5 10H19V8.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/><path d="M9.5 14c.83 0 1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5S8 21.33 8 20.5v-5c0-.83.67-1.5 1.5-1.5z"/><path d="M3.5 14H5v1.5c0 .83-.67 1.5-1.5 1.5S2 16.33 2 15.5 2.67 14 3.5 14z"/><path d="M14 14.5c0-.83.67-1.5 1.5-1.5h5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5h-5c-.83 0-1.5-.67-1.5-1.5z"/><path d="M15.5 19H14v1.5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5-.67-1.5-1.5-1.5z"/><path d="M10 9.5C10 8.67 9.33 8 8.5 8h-5C2.67 8 2 8.67 2 9.5S2.67 11 3.5 11h5c.83 0 1.5-.67 1.5-1.5z"/><path d="M8.5 5H10V3.5C10 2.67 9.33 2 8.5 2S7 2.67 7 3.5 7.67 5 8.5 5z"/></svg>
+        <span>Blank WO Process</span>
+      </div>
+      <div class="nav-item" onclick="showPage('secureboot')" data-label="Secure Boot Certificates">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        <span>Secure Boot Certs</span>
+      </div>
+      <div class="nav-item" onclick="showPage('queues')" data-label="Queue Details">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+        <span>Queue Details</span>
+      </div>
+      <div class="nav-item" onclick="showPage('security')" data-label="Security Hold 90 Days Rule">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <span>Security Hold</span>
+      </div>
+      <div class="nav-item" onclick="showPage('other')" data-label="Other Policies UK Battery Gibraltar Motherboard Labor">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 1.41 14.14"/><path d="M4.93 4.93A10 10 0 0 0 4.93 19.07"/></svg>
+        <span>Other Policies</span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main class="main" id="mainContent">
+
+    <!-- HOME -->
+    <div id="page-home">
+      <p class="page-title">👋 Welcome to Process Buddy</p>
+      <p class="page-sub">EMEA Commercial PPS – Quick Reference Knowledge Base</p>
+      <div class="home-grid" id="homeGrid">
+        <div class="home-tile" onclick="showPage('keypop')">
+          <div class="t-icon">⌨️</div>
+          <div class="t-label">Key Pop-out Issue</div>
+          <div class="t-desc">G10 &amp; below models — Tier check &amp; exemption flow</div>
+        </div>
+        <div class="home-tile" onclick="showPage('priority')">
+          <div class="t-icon">⭐</div>
+          <div class="t-label">Priority Support / GS1</div>
+          <div class="t-desc">Process guide for GS1 &amp; priority customers</div>
+        </div>
+        <div class="home-tile" onclick="showPage('elevations')">
+          <div class="t-icon">⬆️</div>
+          <div class="t-label">Elevations Process</div>
+          <div class="t-desc">Standardized AMS &amp; EMEA technical elevations</div>
+        </div>
+        <div class="home-tile" onclick="showPage('mo')">
+          <div class="t-icon">✅</div>
+          <div class="t-label">MO / Line Cancellations</div>
+          <div class="t-desc">Cancellation rules from CDAX — MO &amp; line-item</div>
+        </div>
+        <div class="home-tile" onclick="showPage('escalation')">
+          <div class="t-icon">🚨</div>
+          <div class="t-label">Global Escalation</div>
+          <div class="t-desc">Updated escalation process per CRT</div>
+        </div>
+        <div class="home-tile" onclick="showPage('blankowo')">
+          <div class="t-icon">📋</div>
+          <div class="t-label">Blank WO Process</div>
+          <div class="t-desc">When blank WOs are permitted &amp; approved codes</div>
+        </div>
+        <div class="home-tile" onclick="showPage('secureboot')">
+          <div class="t-icon">🛡️</div>
+          <div class="t-label">Secure Boot Certs</div>
+          <div class="t-desc">HP vs Enterprise licensing &amp; certificate routing</div>
+        </div>
+        <div class="home-tile" onclick="showPage('queues')">
+          <div class="t-icon">📥</div>
+          <div class="t-label">Queue Details</div>
+          <div class="t-desc">All EMEA channel queues — Print, WA, Chat, OMEN</div>
+        </div>
+        <div class="home-tile" onclick="showPage('security')">
+          <div class="t-icon">🔒</div>
+          <div class="t-label">Security Hold</div>
+          <div class="t-desc">90-day rule, duplicate parts &amp; TL release</div>
+        </div>
+        <div class="home-tile" onclick="showPage('other')">
+          <div class="t-icon">📌</div>
+          <div class="t-label">Other Policies</div>
+          <div class="t-desc">UK Battery, Gibraltar, Motherboard, Labor-only</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- KEY POP-OUT -->
+    <div id="page-keypop" style="display:none">
+      <p class="page-title">Key Pop-out Issue</p>
+      <p class="page-sub">Applies to Models G10 and Below only</p>
+      <div class="alert info">
+        <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        This process is for Models G10 and Below only. Ensure the Subject line contains "Key Pop Out" before proceeding.
+      </div>
+      <div class="card open">
+        <div class="card-header" onclick="toggleCard(this)">
+          <div class="card-icon" style="background:#e8f0fe">⌨️</div>
+          <div>
+            <h2>Step-by-step Decision Flow</h2>
+            <p>Watch alert check → Tier check → Action</p>
+          </div>
+          <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="card-body">
+          <ul class="step-list">
+            <li><div class="step-num">1</div><div>Confirm subject line is added with <strong>"Key Pop Out"</strong>.</div></li>
+            <li><div class="step-num">2</div><div>Check if a <strong>watch alert</strong> is triggered after submitting the subject line.</div></li>
+            <li><div class="step-num">3</div><div><strong>No watch alert received?</strong> This means the customer is categorised as <strong>Tier 1 or Tier 2</strong>. Verify in:<br/><em>Customer Account → Organisation Account Details → Account Tier</em></div></li>
+            <li><div class="step-num">4</div><div><strong>Customer does NOT appear as exempted</strong> → Proceed to <strong>send a quote</strong>.</div></li>
+            <li><div class="step-num">5</div><div><strong>Customer DOES appear as exempted</strong> → Proceed with <strong>normal warranty repair</strong>.</div></li>
+          </ul>
+          <div class="source-ref">
+            <strong>Source:</strong> EMEA Commercial PPS DOA and PDR Process → Key Pop-out Issue<br/>
+            <a href="https://wise.hp.com/wise/DocumentDetail/emea-en?docId=ish_10951107-10924234-16&contentType=Process%20Document&selectedLangCode=en" target="_blank" style="color:var(--brand);font-size:11px;">Open in WISE ↗</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRIORITY SUPPORT -->
+    <div id="page-priority" style="display:none">
+      <p class="page-title">Priority Support / GS1 Process</p>
+      <p class="page-sub">Reference guide for handling GS1 and priority customer interactions</p>
+      <div class="card open">
+        <div class="card-header" onclick="toggleCard(this)">
+          <div class="card-icon" style="background:#fffbeb">⭐</div>
+          <div><h2>GS1 / Priority Support Reference</h2><p>Full process document available in WISE</p></div>
+          <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="card-body">
+          <div class="alert info">
+            <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            The full Priority Support and GS1 process is maintained in the WISE document linked below. Refer to it for detailed steps, eligibility, and routing.
+          </div>
+          <div class="source-ref">
+            <strong>Source:</strong> EMEA Commercial PPS DOA and PDR Process → Priority Support or GS1 Process<br/>
+            <a href="https://wise.hp.com/wise/DocumentDetail/emea-en?docId=ish_7897776-7893236-16&contentType=Process%20Document&selectedLangCode=en" target="_blank" style="color:var(--brand);font-size:11px;">Open in WISE ↗</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ELEVATIONS -->
+    <div id="page-elevations" style="display:none">
+      <p class="page-title">EMEA Elevations Process</p>
+      <p class="page-sub">Standardized across AMS and EMEA</p>
+      <div class="alert warn">
+        <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        The standalone EMEA PPS Elevations process has been <strong>retired</strong>. Use the new AMS and EMEA PPS Technical Elevation Process instead.
+      </div>
+      <div class="card open">
+        <div class="card-header" onclick="toggleCard(this)">
+          <div class="card-icon" style="background:#e6fffa">⬆️</div>
+          <div><h2>AMS &amp; EMEA PPS Technical Elevation Process</h2><p>New standardized process — replaces old EMEA standalone</p></div>
+          <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="card-body">
+          <p style="font-size:13px;color:var(--text-2);margin-bottom:10px;">Refer to the WISE document for the complete elevation steps, approval chains, and applicable scenarios.</p>
+          <div class="source-ref">
+            <strong>Source:</strong> EMEA Commercial PPS DOA and PDR Process → EMEA Elevations Process Standardized<br/>
+            <a href="https://wise.hp.com/wise/DocumentDetail/emea-en?docId=ish_12871840-12871753-16&contentType=Process%20Document&selectedLangCode=en" target="_blank" style="color:var(--brand);font-size:11px;">Open in WISE ↗</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MO CANCELLATIONS -->
+    <div id="page-mo" style="display:none">
+      <p class="page-title">MO and Line-Item Cancellations from CDAX</p>
+      <p class="page-sub">Cancellation eligibility rules — must be followed strictly</p>
+      <div class="card open">
+        <div class="card-header" onclick="toggleCard(this)">
+          <div class="card-icon" style="background:#e6fffa">✅</div>
+          <div><h2>MO Cancellation Rules</h2><p>After Sales Order (SO) is generated</p></div>
+          <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="card-body">
+          <div class="alert success">
+            <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+            MO cancellation <strong>is possible from CDAX</strong> after SO is generated, provided no line item has moved to <strong>Locked</strong> status yet.
+          </div>
+          <table class="kv-table">
+            <tr><td>MO Status allowed</td><td>"Order Pending" or "Ordered"</td></tr>
+            <tr><td>Condition</td><td>No line item in Locked status</td></tr>
+            <tr><td>Separate Line-Item Cancellation</td><td>Also possible — if not yet in Locked / Shipped / POD status</td></tr>
+          </table>
+          <div class="alert info" style="margin-top:12px">
+            <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            For full cancellation guidelines refer to <strong>Section 6: How to cancel a MO</strong> in the process document.
+          </div>
+          <div class="source-ref">
+            <strong>Source:</strong> EMEA Commercial PPS DOA and PDR Process → MO and Line-Item Cancellations from CDAX<br/>
+            <a href="https://wise.hp.com/wise/DocumentDetail/ams-en?selectedLangCode=en&docId=ish_12816248-12810361-16&contentType=Process%20Document" target="_blank" style="color:var(--brand);font-size:11px;">Open in WISE ↗</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ESCALATION -->
+    <div id="page-escalation" style="display:none">
+      <p class="page-title">Updated Global Escalation Process</p>
+      <p class="page-sub">Updated as per CRT requirements</p>
+      <div class="card open">
+        <div class="card-header" onclick="toggleCard(this)">
+          <div class="card-icon" style="background:#fff5f5">🚨</div>
+          <div><h2>Global Escalation Process</h2><p>Latest version — updated per CRT</p></div>
+          <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="card-body">
+          <p style="font-size:13px;color:var(--text-2);margin-bottom:12px;">The global escalation process has been updated per CRT. Refer to the WISE document for the full process, escalation triggers, and routing instructions.</p>
+          <div class="source-ref">
+            <strong>Source:</strong> EMEA Commercial PPS DOA and PDR Process → Updated Global Escalation Process<br/>
+            <a href="https://wise.hp.com/wise/DocumentDetail/emea-en?docId=ish_13298252-13297648-16&contentType=Process%20Document&selectedLangCode=en" target="_blank" style="color:var(--brand);font-size:11px;">Open in WISE ↗</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BLANK WO -->
+    <div id="page-blankowo" style="display:none">
+      <p class="page-title">Blank WO Creation – Process Adherence</p>
+      <p class="page-sub">Critical compliance requirement — do not create blank WOs outside approved scenarios</p>
+      <div class="alert danger">
+        <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <div><strong>DO NOT CREATE BLANK WO TO SEND ENGINEER TO TROUBLESHOOT.</strong><br/>We do not have Non DBD Carepacks anymore.</div>
+      </div>
+      <div class="card open">
+        <div class="card-header" onclick="toggleCard(this)">
+          <div class="card-icon" style="background:#e8f0fe">✅</div>
+          <div><h2>Approved Scenarios for Blank WO</h2><p>Only these OTC codes are permitted</p></div>
+          <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="card-body">
+          <table class="kv-table">
+            <tr><td><strong>OTC – 02G</strong></td><td>Service advisory mandating engineer to site without parts (e.g. G11 units with no power)</td></tr>
+            <tr><td><strong>OTC – 06J</strong></td><td>CRT approves engineer to go to site to troubleshoot</td></tr>
+            <tr><td><strong>OTC – 06N</strong></td><td>ADM / SDM / CSM / FSM gives approval to send engineer to troubleshoot</td></tr>
+          </table>
+          <div class="alert info" style="margin-top:12px">
+            <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            All other scenarios: send <strong>Trade Quote</strong> to the customer first. Upon acceptance, send Blank WO on <strong>01-Trade</strong>.
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header" onclick="toggleCard(this)">
+          <div class="card-icon" style="background:#fffbeb">📋</div>
+          <div><h2>Standard Flow (Non-approved scenarios)</h2><p>When customer is unwilling to troubleshoot</p></div>
+          <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="card-body">
+          <ul class="step-list">
+            <li><div class="step-num">1</div><div>Customer is unwilling to troubleshoot.</div></li>
+            <li><div class="step-num">2</div><div>Send a <strong>Trade Quote</strong> to the customer.</div></li>
+            <li><div class="step-num">3</div><div>Upon customer <strong>acceptance</strong> of the quote, send a <strong>Blank WO on 01-Trade</strong>.</div></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECURE BOOT -->
+    <div id="page-secureboot" style="display:none">
+      <p class="page-title">Secure Boot Certificates</p>
+      <p class="page-sub">HP vs Enterprise licensing — different handling paths</p>
+      <div class="card open">
+        <div class="card-header" onclick="toggleCard(this)">
+          <div class="card-icon" style="background:#e8f0fe">🛡️</div>
+          <div><h2>Decision Flow</h2><p>Device support check → licensing check → routing</p></div>
+          <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="card-body">
+          <ul class="step-list">
+            <li><div class="step-num">1</div><div>Refer first to the <a href="https://support.hp.com/us-en/document/ish_13070353-13070429-16" target="_blank" style="color:var(--brand)">HP Business PCs – Prepare for new Windows Secure Boot certificates</a> public document.</div></li>
+            <li><div class="step-num">2</div><div><strong>Device listed as supported?</strong> Follow the steps in the HP support document.</div></li>
+            <li><div class="step-num">3</div><div><strong>Device NOT listed as supported:</strong> Check the licensing type.</div></li>
+            <li><div class="step-num">4</div><div>Licensing from <strong>HP</strong>: Follow the <a href="https://wise.hp.com/wise/DocumentDetail/ams-en?docId=ish_14941394-14941453-16&contentType=Support%20Document&selectedLangCode=en" target="_blank" style="color:var(--brand)">WISE Support Document ↗</a></div></li>
+            <li><div class="step-num">5</div><div>Licensing from <strong>Enterprise</strong>: Direct customer to <strong>Microsoft Support</strong>.</div></li>
+          </ul>
+          <div class="grid-2" style="margin-top:14px">
+            <div class="mini-card"><strong>🏢 HP Licensed</strong>Follow WISE document process for unsupported devices.</div>
+            <div class="mini-card"><strong>🌐 Enterprise Licensed</strong>Redirect customer to Microsoft Support — no action from HP side.</div>
+          </div>
+          <div class="source-ref">
+            <strong>Source:</strong> EMEA Commercial PPS DOA and PDR Process → Secure Boot Certificates<br/>
+            <a href="https://wise.hp.com/wise/DocumentDetail/ams-en?docId=ish_14941394-14941453-16&contentType=Support%20Document&selectedLangCode=en" target="_blank" style="color:var(--brand);font-size:11px;">Open WISE Support Doc ↗</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- QUEUES -->
+    <div id="page-queues" style="display:none">
+      <p class="page-title">Queue Details</p>
+      <p class="page-sub">All active EMEA channel queues</p>
+      <div class="card open">
+        <div class="card-header" onclick="toggleCard(this)">
+          <div class="card-icon" style="background:#e8f0fe">📥</div>
+          <div><h2>Active EMEA Queues</h2><p>7 queues across channels</p></div>
+          <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="card-body">
+          <ul class="queue-list">
+            <li><span class="queue-badge">PRINT</span> EMEA-WA-FB-EN-UKI-CNX-Print</li>
+            <li><span class="queue-badge">WA</span> EMEA-WA-HPUK-HPCC-EN-PC (Commercial)</li>
+            <li><span class="queue-badge">CHAT</span> EMEA-CHAT-EN-COMM-Computing (Consumer Chat)</li>
+            <li><span class="queue-badge">OMEN</span> Global-FB-HPOMEN-EN (OMEN PC)</li>
+            <li><span class="queue-badge">INK</span> EMEA-WA-FB-EN-UKI-CNX-InstantInk (Instant Ink)</li>
+            <li><span class="queue-badge">LIVE</span> EMEA-CHAT-ALL-COMM-AdvancedComputing (Live Chat)</li>
+            <li><span class="queue-badge">ACS</span> EMEA-WA-HPUK-HPCC-EN-ACS (WhatsApp)</li>
+          </ul>
+          <div class="source-ref"><strong>Source:</strong> EMEA Commercial PPS DOA and PDR Process → Queue Details</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECURITY HOLD -->
+    <div id="page-security" style="display:none">
+      <p class="page-title">Security Hold – 90 Days Rule</p>
+      <p class="page-sub">Triggered by duplicate part usage on the same unit</p>
+      <div class="card open">
+        <div class="card-header" onclick="toggleCard(this)">
+          <div class="card-icon" style="background:#fff5f5">🔒</div>
+          <div><h2>Security Hold Rules</h2><p>90-day part repeat restriction</p></div>
+          <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="card-body">
+          <table class="kv-table">
+            <tr><td>Trigger condition</td><td>Same part used within <strong>90 days</strong> for the same unit AND a new MO is created for the same part</td></tr>
+            <tr><td>Effect</td><td>A <strong>security hold</strong> is placed on the order</td></tr>
+            <tr><td>Who can release</td><td><strong>Team Leader (TL) only</strong></td></tr>
+          </table>
+          <div class="alert danger" style="margin-top:12px">
+            <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            Security holds can only be released by the Team Leader (TL). Do not attempt to bypass or self-release.
+          </div>
+          <div class="source-ref"><strong>Source:</strong> EMEA Commercial PPS DOA and PDR Process → Security Hold (90 Days Rule)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OTHER POLICIES -->
+    <div id="page-other" style="display:none">
+      <p class="page-title">Other Policies</p>
+      <p class="page-sub">UK Battery, Gibraltar, Motherboard Branding, Labor-Only Service, Chat Expansion</p>
+
+      <div class="card open">
+        <div class="card-header" onclick="toggleCard(this)">
+          <div class="card-icon" style="background:#e8f0fe">🔋</div>
+          <div><h2>UK Battery Replacement</h2><p>Single MO dispatch rule</p></div>
+          <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="card-body">
+          <div class="alert success">
+            <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+            Battery and part will be sent in a <strong>single MO</strong>.
+          </div>
+          <div class="source-ref"><strong>Source:</strong> EMEA Commercial PPS DOA and PDR Process → UK Battery Replacement</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header" onclick="toggleCard(this)">
+          <div class="card-icon" style="background:#fffbeb">🇬🇮</div>
+          <div><h2>Gibraltar Process</h2><p>Applicable service types for Gibraltar</p></div>
+          <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="card-body">
+          <table class="kv-table">
+            <tr><td>Applicable services</td><td>ONS / Trade / CSR <strong>only</strong></td></tr>
+            <tr><td>OFS</td><td><strong>Not applicable</strong> — No OFS for Gibraltar</td></tr>
+          </table>
+          <div class="source-ref"><strong>Source:</strong> EMEA Commercial PPS DOA and PDR Process → Gibraltar Process</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header" onclick="toggleCard(this)">
+          <div class="card-icon" style="background:#e6fffa">🖥️</div>
+          <div><h2>Motherboard Branding Issues</h2><p>Missing or incorrect branding handling</p></div>
+          <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="card-body">
+          <ul class="step-list">
+            <li><div class="step-num">1</div><div>If branding is <strong>missing or incorrect</strong> on the motherboard:</div></li>
+            <li><div class="step-num">2</div><div>Send email to the <strong>relevant country dispatch team</strong> with Case Number &amp; WO.</div></li>
+            <li><div class="step-num">3</div><div><strong>Do not create any new MO or WO.</strong></div></li>
+            <li><div class="step-num">4</div><div>Once confirmation is received via email, the case will be <strong>closed as RR</strong>.</div></li>
+          </ul>
+          <div class="source-ref"><strong>Source:</strong> EMEA Commercial PPS DOA and PDR Process → Motherboard Branding Issues</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header" onclick="toggleCard(this)">
+          <div class="card-icon" style="background:#faf5ff">🔧</div>
+          <div><h2>Labor-Only Service</h2><p>When service is needed without parts</p></div>
+          <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="card-body">
+          <div class="alert info">
+            <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            If service is required <strong>without parts</strong>, send an email to <strong>Mentor</strong> requesting labor-only service.
+          </div>
+          <div class="source-ref"><strong>Source:</strong> EMEA Commercial PPS DOA and PDR Process → Labor-Only Service</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header" onclick="toggleCard(this)">
+          <div class="card-icon" style="background:#e8f0fe">💬</div>
+          <div><h2>Chat Expansion – EMEA Small Languages</h2><p>HU, SLK, CZ, PL and RO</p></div>
+          <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="card-body">
+          <div class="alert info">
+            <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            Chat expansion is active for EMEA small languages: <strong>Hungarian (HU), Slovak (SLK), Czech (CZ), Polish (PL), and Romanian (RO)</strong>.
+          </div>
+          <div class="source-ref"><strong>Source:</strong> EMEA Commercial PPS DOA and PDR Process → Chat Expansion EMEA Small Languages</div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- CHAT PANEL -->
+  <aside class="chat-panel">
+    <div class="chat-header">
+      <div class="chat-dot"></div>
+      <h3>Process Buddy</h3>
+      <span style="font-size:11px;color:var(--text-3)">Ask anything</span>
+    </div>
+    <div class="chat-messages" id="chatMessages">
+      <div class="msg bot">
+        👋 Hi! I'm <strong>Process Buddy</strong>. Ask me anything about the EMEA PPS processes — or click a topic on the left to read the full guide.
+        <div class="source">Source: EMEA Commercial PPS DOA and PDR Process</div>
+      </div>
+    </div>
+    <div class="quick-chips" id="quickChips">
+      <div class="chip" onclick="askChip('What is the Key Pop-out process?')">Key Pop-out</div>
+      <div class="chip" onclick="askChip('When can I create a Blank WO?')">Blank WO rules</div>
+      <div class="chip" onclick="askChip('What is the 90 day security hold rule?')">Security hold</div>
+      <div class="chip" onclick="askChip('What services are available in Gibraltar?')">Gibraltar</div>
+      <div class="chip" onclick="askChip('How do I handle a motherboard branding issue?')">Motherboard</div>
+    </div>
+    <div class="chat-input-wrap">
+      <textarea id="chatInput" placeholder="Ask a process question…" rows="1" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+      <button class="send-btn" onclick="sendMessage()" aria-label="Send">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      </button>
+    </div>
+  </aside>
+
+</div>
+
+<script>
+const KB = {
+  home: { keywords: ['home', 'overview', 'all', 'topics'] },
+  keypop: {
+    keywords: ['key pop', 'keyboard', 'pop out', 'pop-out', 'g10', 'tier', 'watch alert', 'exempted', 'warranty repair'],
+    answer: `The Key Pop-out process applies to Models G10 and Below only.\n\n**Steps:**\n1. Confirm subject line contains "Key Pop Out".\n2. Check if a watch alert is triggered.\n3. No watch alert = customer is Tier 1 or Tier 2. Check in: Customer Account → Organisation Account Details → Account Tier.\n4. If customer is NOT exempted → Send a quote.\n5. If customer IS exempted → Proceed with normal warranty repair.\n\n**Source:** EMEA Commercial PPS DOA and PDR Process → Key Pop-out Issue`,
+    page: 'keypop'
+  },
+  priority: {
+    keywords: ['priority support', 'gs1', 'gS1', 'priority customer'],
+    answer: `The Priority Support / GS1 process is fully documented in the WISE process document. Refer to it for eligibility criteria, routing, and handling steps.\n\n**Source:** EMEA Commercial PPS DOA and PDR Process → Priority Support or GS1 Process`,
+    page: 'priority'
+  },
+  elevations: {
+    keywords: ['elevation', 'escalate', 'elevate', 'technical elevation'],
+    answer: `The standalone EMEA PPS Elevations process has been **retired**. Use the new AMS and EMEA PPS Technical Elevation Process as the reference.\n\n**Source:** EMEA Commercial PPS DOA and PDR Process → EMEA Elevations Process Standardized`,
+    page: 'elevations'
+  },
+  mo: {
+    keywords: ['mo cancel', 'line item cancel', 'cdax', 'sales order', 'order pending', 'locked status', 'mO'],
+    answer: `MO cancellation is possible from CDAX after the Sales Order (SO) is generated — IF no line item has moved to Locked status yet.\n\n- MO in "Order Pending" or "Ordered" status can be cancelled.\n- Separate Line-Item cancellation is possible if not yet in Locked/Shipped/POD status.\n\nFor full guidelines, refer to Section 6 of the WISE document.\n\n**Source:** EMEA Commercial PPS DOA and PDR Process → MO and Line-Item Cancellations from CDAX`,
+    page: 'mo'
+  },
+  escalation: {
+    keywords: ['global escalation', 'escalation process', 'crt', 'escalate case'],
+    answer: `The Global Escalation process has been updated per CRT. Refer to the WISE document for full escalation triggers and routing.\n\n**Source:** EMEA Commercial PPS DOA and PDR Process → Updated Global Escalation Process`,
+    page: 'escalation'
+  },
+  blankowo: {
+    keywords: ['blank wo', 'blank work order', 'troubleshoot', 'otc', '02g', '06j', '06n', 'trade quote', '01-trade', 'engineer', 'send engineer'],
+    answer: `**DO NOT create Blank WOs to send engineers to troubleshoot.** There are no Non DBD Carepacks anymore.\n\n**Approved Blank WO scenarios:**\n- OTC-02G: Service advisory mandating engineer without parts (e.g. G11 no power)\n- OTC-06J: CRT approves engineer to troubleshoot\n- OTC-06N: ADM/SDM/CSM/FSM approves engineer visit\n\n**All other scenarios:** Send Trade Quote first. On acceptance, send Blank WO on 01-Trade.\n\n**Source:** EMEA Commercial PPS DOA and PDR Process → Blank WO Created – Process Adherence`,
+    page: 'blankowo'
+  },
+  secureboot: {
+    keywords: ['secure boot', 'certificate', 'windows certificate', 'enterprise license', 'hp license', 'microsoft support'],
+    answer: `**Secure Boot Certificate flow:**\n1. Check HP support doc first: HP Business PCs – Prepare for new Windows Secure Boot certificates.\n2. Device NOT listed as supported → check licensing:\n   - HP licensed: Follow the WISE process document.\n   - Enterprise licensed: Direct customer to Microsoft Support.\n\n**Source:** EMEA Commercial PPS DOA and PDR Process → Secure Boot Certificates`,
+    page: 'secureboot'
+  },
+  queues: {
+    keywords: ['queue', 'chat queue', 'whatsapp queue', 'wa queue', 'omen queue', 'instant ink', 'print queue', 'acs'],
+    answer: `**Active EMEA Queues:**\n- PRINT: EMEA-WA-FB-EN-UKI-CNX-Print\n- WA (Commercial): EMEA-WA-HPUK-HPCC-EN-PC\n- Consumer Chat: EMEA-CHAT-EN-COMM-Computing\n- OMEN PC: Global-FB-HPOMEN-EN\n- Instant Ink: EMEA-WA-FB-EN-UKI-CNX-InstantInk\n- Live Chat: EMEA-CHAT-ALL-COMM-AdvancedComputing\n- WhatsApp ACS: EMEA-WA-HPUK-HPCC-EN-ACS\n\n**Source:** EMEA Commercial PPS DOA and PDR Process → Queue Details`,
+    page: 'queues'
+  },
+  security: {
+    keywords: ['security hold', '90 day', '90 days', 'duplicate part', 'team leader', 'tl release', 'hold release'],
+    answer: `**Security Hold – 90 Days Rule:**\nIf a part is used within 90 days for the same unit AND a new MO is created for the same part, a security hold is triggered.\n\n- Only the **Team Leader (TL)** can release the hold.\n- Do not attempt to bypass or self-release.\n\n**Source:** EMEA Commercial PPS DOA and PDR Process → Security Hold (90 Days Rule)`,
+    page: 'security'
+  },
+  other: {
+    keywords: ['uk battery', 'battery replacement', 'gibraltar', 'ofs', 'motherboard branding', 'branding issue', 'labor only', 'labour only', 'mentor', 'hungarian', 'polish', 'czech', 'romanian', 'slovak', 'hu slk cz pl ro', 'chat expansion'],
+    answer: `Various policies covered:\n\n**UK Battery:** Battery and part sent in a single MO.\n\n**Gibraltar:** Only ONS/Trade/CSR applicable — No OFS.\n\n**Motherboard Branding Issue:** Email country dispatch team with Case No. & WO. Do NOT create new MO/WO. Close as RR once confirmed.\n\n**Labor-Only Service:** Email Mentor requesting labor-only service.\n\n**Chat Expansion:** Active for HU, SLK, CZ, PL, and RO.\n\n**Source:** EMEA Commercial PPS DOA and PDR Process → Various Sections`,
+    page: 'other'
+  }
+};
+
+function findAnswer(query) {
+  const q = query.toLowerCase();
+  for (const [key, data] of Object.entries(KB)) {
+    if (key === 'home') continue;
+    if (data.keywords && data.keywords.some(k => q.includes(k.toLowerCase()))) {
+      return { answer: data.answer, page: data.page };
+    }
+  }
+  return null;
+}
+
+function formatAnswer(text) {
+  return text
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\n- /g, '<br>• ')
+    .replace(/\n\d+\. /g, (m) => '<br>' + m.trim() + ' ')
+    .replace(/\n/g, '<br>');
+}
+
+function addMsg(text, role, source) {
+  const msgs = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = 'msg ' + role;
+  div.innerHTML = formatAnswer(text);
+  if (source) {
+    const s = document.createElement('div');
+    s.className = 'source';
+    s.textContent = source;
+    div.appendChild(s);
+  }
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function addTyping() {
+  const msgs = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = 'msg bot';
+  div.id = 'typingIndicator';
+  div.innerHTML = '<div class="typing"><span></span><span></span><span></span></div>';
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+  return div;
+}
+
+function sendMessage() {
+  const input = document.getElementById('chatInput');
+  const query = input.value.trim();
+  if (!query) return;
+  addMsg(query, 'user');
+  input.value = '';
+  input.style.height = 'auto';
+
+  const typing = addTyping();
+  setTimeout(() => {
+    typing.remove();
+    const result = findAnswer(query);
+    if (result) {
+      addMsg(result.answer, 'bot');
+      if (result.page) {
+        const link = document.createElement('div');
+        link.style.cssText = 'margin:6px 0 0;font-size:11px;';
+        link.innerHTML = `<span style="cursor:pointer;color:var(--brand);text-decoration:underline" onclick="showPage('${result.page}')">📖 View full guide →</span>`;
+        document.getElementById('chatMessages').lastChild.appendChild(link);
+      }
+    } else {
+      addMsg('I could not find information related to this query in the available documents. Try asking about: Key Pop-out, Blank WO, Security Hold, Queues, MO Cancellations, Secure Boot, Elevations, or Gibraltar.', 'bot', 'Source: EMEA Commercial PPS DOA and PDR Process');
+    }
+  }, 600);
+}
+
+function askChip(text) {
+  document.getElementById('chatInput').value = text;
+  sendMessage();
+}
+
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 80) + 'px';
+}
+
+function showPage(id) {
+  document.querySelectorAll('[id^="page-"]').forEach(p => p.style.display = 'none');
+  document.getElementById('page-' + id).style.display = 'block';
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const target = [...document.querySelectorAll('.nav-item')].find(n => n.getAttribute('onclick')?.includes("'" + id + "'"));
+  if (target) target.classList.add('active');
+  document.getElementById('mainContent').scrollTop = 0;
+}
+
+function toggleCard(header) {
+  const card = header.closest('.card');
+  card.classList.toggle('open');
+}
+
+function filterNav(val) {
+  const q = val.toLowerCase();
+  document.querySelectorAll('.nav-item').forEach(item => {
+    const label = (item.dataset.label || '').toLowerCase();
+    item.classList.toggle('hidden', q.length > 0 && !label.includes(q));
+  });
+}
+</script>
+</body>
+</html>
